@@ -141,28 +141,12 @@ C     Checked
      *        + 2.0 * fO2 * fHe * BTO2He * GTO2He * 
      *        (fO2 + fHe) / (BTO2He**2.0 * fO2 + fHe)
      *        * (temp_cO2 * temp_cHe)**0.5
-         WRITE (*, 701) 'TempRA', TEMP_R
-
-         TEMP_R = fN2**2.0 * temp_cN2 + fO2**2.0 * temp_cO2 + 
-     *        fHe**2.0 * temp_cHe
-     *        + 2.0 * fN2 * fO2 * BTN2O2 * GTN2O2 * 
-     *        (fN2 + fO2) / (BTN2O2**2.0 * fN2 + fO2)
-     *        * (temp_cN2 * temp_cO2)**0.5
-     *        + 2.0 * fN2 * fHe * BTN2He * GTN2He * 
-     *        (fN2 + fHe) / (BTN2He**2.0 * fN2 + fHe)
-     *        * (temp_cN2 * temp_cHe)**0.5
-     *        + 2.0 * fO2 * fHe * BTO2He * GTO2He * 
-     *        (fO2 + fHe) / (BTO2He**2.0 * fO2 + fHe)
-     *        * (temp_cO2 * temp_cH)**0.5
 
       ELSE
          TEMP_R = fN2**2 * Temp_cN2 + 
      *        fO2**2 * Temp_cO2 + fHe**2 * Temp_cHe
-         WRITE (*, 701) 'TempRB', TEMP_R
       END IF
       RETURN
-
- 701  FORMAT (A20, F16.12)
       END
 
 
