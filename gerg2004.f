@@ -4,13 +4,13 @@ C     "The partial GERG-2004 implementation used to calculate the
 C     compressibility factors of oxygen, helium, nitrogen and their
 C     mixtures in the gas phase was inspired by open source code written
 C     by David de Marneffe in December 2007. David can be contacted at
-C     daviddemarneffe@yahoo.com."
+C     daviddemarneffe at yahoo dot com."
 C
 C     Ported to Fortran by Eskil Heyn Olsen (eskil at eskil dot org).
 C
 C===============================================================================
       IMPLICIT NONE
-      REAL Fraction_Oxygen, Fraction_Helium
+      REAL fO2, fHe
       REAL Pressure, Temperature, Delta
       CHARACTER System*10
       REAL Z_VALUE, Z
@@ -19,10 +19,13 @@ C===============================================================================
 C     Load input
       OPEN (UNIT=7, FILE='input', STATUS='UNKNOWN', ACCESS='SEQUENTIAL',
      *     FORM='FORMATTED')
-      READ (7,*) Fraction_Oxygen, Fraction_Helium,
+      READ (7,*) fO2, fHe,
      *     Pressure, Temperature, Delta, System
 
-C     Frob input
+C     Adjust to measurement system
+      IF ((System .NE. 'imperial').AND.(System .NE. 'metric')) THEN
+         STOP 'BAD INPUT what measurement system?'
+      END IF 
       IF (System .EQ. 'imperial') THEN
          Pressure = Pressure / 14.5037738
          Temperature = (Temperature - 32) / 1.8
@@ -33,10 +36,30 @@ C     Convert pressure to absolute
 C     Convert temperature to kelvin
       Temperature = Temperature + 273.15
 
-      Z = Z_VALUE(Fraction_Oxygen, Fraction_Helium, Pressure, 
+C     Validate input
+      IF ((fO2 .LT. 0.0).OR.(fO2 .GT. 1.0)) THEN
+         STOP 'BAD INPUT fO2'
+      END IF
+      IF ((fHe .LT. 0.0).OR.(fHe .GT. 1.0)) THEN
+         STOP 'BAD INPUT fHe'
+      END IF
+      IF (fHe + fO2 .GT. 1.0) THEN
+         STOP 'BAD INPUT fO2 + fHe > 1'
+      END IF
+      IF ((Pressure .LE. 0.0).OR.(Pressure .GT. 400)) THEN
+         STOP 'BAD INPUT Pressure not ]0...400]bar-a'
+      END IF
+      IF (Temperature .LT. 250) THEN
+         STOP 'BAD INPUT Temperature not below 250K'
+      END IF
+      IF (Delta .LE. 0.0) THEN
+         STOP 'BAD INPUT Delta < 0'
+      END IF
+
+      Z = Z_VALUE(fO2, fHe, Pressure, 
      *     Temperature, Delta)
 
-      WRITE (*,500) Fraction_Oxygen, Fraction_Helium
+      WRITE (*,500) fO2, fHe
       WRITE (*,501) Temperature
       WRITE (*,502) Pressure
       WRITE (*,503) Z
@@ -190,6 +213,13 @@ C===============================================================================
 
       fN2 = 1.0 - fO2 - fHe
 
+      IF (Delta .LE. 0) THEN
+         STOP 'Error, reduced density <= 0'
+      END IF
+      IF (Tau .LE. 0) THEN
+         STOP 'Error, reduced temperature <= 0'
+      END IF
+
       DALPHAR_DDELTA_MIX = fO2 * DALPHAR_DDELTA_O2 (Delta, Tau) +
      *     fHe * DALPHAR_DDELTA_He (Delta, Tau) +
      *     fN2 * DALPHAR_DDELTA_N2 (Delta, Tau)
@@ -203,6 +233,13 @@ C===============================================================================
       FUNCTION DALPHAR_DDELTA_O2(Delta, Tau)
       REAL Delta, Tau
       REAL DALPHAR_DDELTA_O2
+
+      IF (Delta .LE. 0) THEN
+         STOP 'Error, reduced density <= 0'
+      END IF
+      IF (Tau .LE. 0) THEN
+         STOP 'Error, reduced temperature <= 0'
+      END IF
 
       DALPHAR_DDELTA_O2 = 0.88878286369701 * tau**0.25
      *     - 2.4879433312148 * tau**1.125
@@ -233,6 +270,13 @@ C===============================================================================
       REAL Delta, Tau
       REAL DALPHAR_DDELTA_O2
 
+      IF (Delta .LE. 0) THEN
+         STOP 'Error, reduced density <= 0'
+      END IF
+      IF (Tau .LE. 0) THEN
+         STOP 'Error, reduced temperature <= 0'
+      END IF
+
       DALPHAR_DDELTA_He = -0.45579024006737
      *     + 1.2516390754925 * tau**0.125
      *     - 1.5438231650621 * tau**0.75
@@ -261,6 +305,13 @@ C===============================================================================
       FUNCTION DALPHAR_DDELTA_N2(Delta, Tau)
       REAL Delta, Tau
       REAL DALPHAR_DDELTA_N2
+
+      IF (Delta .LE. 0) THEN
+         STOP 'Error, reduced density <= 0'
+      END IF
+      IF (Tau .LE. 0) THEN
+         STOP 'Error, reduced temperature <= 0'
+      END IF
 
       DALPHAR_DDELTA_N2 = 0.59889711801201 * tau**0.125
      *     - 1.6941557480731 * tau**1.125
