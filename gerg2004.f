@@ -42,10 +42,10 @@ C     Convert temperature to kelvin
       WRITE (*,503) Z
 
 C===============================================================================
- 500  FORMAT (F5.2, '/', F5.2)
- 501  FORMAT (F6.1, 'k')
- 502  FORMAT (F6.1, 'bar(a)')
- 503  FORMAT ('Z = ', F20.16)
+ 500  FORMAT ('Gas =', F5.2, '/', F5.2)
+ 501  FORMAT ('Temp =', F6.1, 'k')
+ 502  FORMAT ('Pressure =', F6.1, 'bar(a)')
+ 503  FORMAT ('Z =', F20.16)
 
 C===============================================================================
       CLOSE (UNIT = 7, STATUS = 'KEEP')
@@ -68,22 +68,13 @@ C     Initial guess
       Z_VALUE = 1.0
 
       Delta = 0.0
-      WRITE (*, 601) 'Pressure', Pressure
-      WRITE (*, 601) 'Z', Z_VALUE
-      WRITE (*, 601) 'R', R
-      WRITE (*, 601) 'Temp', Temperature
-      WRITE (*, 601) 'Dens_R', Dens_Red
-      WRITE (*, 601) 'Tau', Tau
-      WRITE (*, 602)
 
       DO WHILE (.TRUE.)
 C        calculate molar density (mole per liter)
          Dens = Pressure / (Z_VALUE * R * Temperature)
-         WRITE (*, 601) 'Dens', Dens
 
 C        calculate reduced density
          Delta = Dens / Dens_Red
-         WRITE (*, 601) 'Delta', Delta
 
 C        remember previous value
          Z_Old = Z_VALUE
@@ -91,19 +82,12 @@ C        remember previous value
 C        calculate new Z
          Z_VALUE = 1.0 + Delta * 
      *        DALPHAR_DDELTA_MIX(fO2, fHe, Delta, Tau)
-         WRITE (*, 601) 'Z', Z_VALUE
 
          ZDelta = ABS (Z_VALUE - Z_Old)
-         WRITE (*, 601) 'ZDelta', ZDelta
-         WRITE (*, 601) 'MaxDelta', MaxDelta
          IF (ZDelta .LT. MaxDelta) THEN
             EXIT
          END IF
-         WRITE (*, 602)
       END DO
-
- 601  FORMAT (A20, F16.12)
- 602  FORMAT ()
 
       RETURN
       END

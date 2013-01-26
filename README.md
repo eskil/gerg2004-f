@@ -26,3 +26,7 @@ where
 * ```Temperature``` the temperature of the gas.
 * ```Delta``` the minimum delta to converge on when computing the Z value.
 * ```System``` the system of measurement for pressure and temperature, use ```imperial``` or ```metric```.
+
+
+Todo
+* Add range checks on inputs.

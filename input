@@ -1,3 +1,7 @@
-0.21,0.35,1000,70,0.00001,imperial
+0.21,0.35,300,21,0.00001,metric
+
 
 Line 1: FO2, FHe, Pgauge, T, Delta, System
+
+Eg: 21/35 at 230bar at 21C : 0.21,0.35,230,21,0.00001,metric
+Eg: Air at 3000psi at 70F : 0.21,0.0,3000,70,0.00001,imperial
